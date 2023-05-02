@@ -1,0 +1,15 @@
+{
+  "watch": [
+    "src/**/*.ts",
+    ".env",
+    ".env.development",
+    ".env.staging",
+    ".env.production"
+  ],
+  "ext": "js,ts,json",
+  "ignore": [
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts"
+  ],
+  "exec": "ts-node -r tsconfig-paths/register --transpile-only src/server.ts"
+}
