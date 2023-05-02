@@ -19,11 +19,11 @@ app.use(
         credentials: true,
     }),
 )
-app.get("/", (_, res) => res.json("API Service OK"))
-app.get("/version", (_, res) => res.json({version: process.env.npm_package_version}))
+app.get("/api", (_, res) => res.json("API Service OK"))
+app.get("/api/version", (_, res) => res.json({version: process.env.npm_package_version}))
 
-routers.map(router => app.use(router))
+routers.map(router => app.use('/api', router))
 
 app.use(errorMiddleware)
 
-module.exports = app
+export default app
