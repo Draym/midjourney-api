@@ -1,0 +1,64 @@
+name: Production CI & CD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    name: ci-prod
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build --if-present
+      - run: npm run test
+
+  deploy:
+    name: cd-prod
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          passphrase: ${{ secrets.PRIVATE_PASSPHRASE }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            cd /home/dlab/apps/midjourney-api
+            git pull origin main
+            npm ci
+            npm run build --if-present
+            echo "" > .env
+            echo "PORT=${{ secrets.APP_PORT }}" >> .env
+            echo "MYSQL_HOST=${{ secrets.MYSQL_HOST }}" >> .env
+            echo "MYSQL_DB_NAME=${{ secrets.MYSQL_DB_NAME }}" >> .env
+            echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" >> .env
+            echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
+            echo "MYSQL_PORT=${{ secrets.MYSQL_PORT }}" >> .env
+            echo "AXE_SHOW_META=false" >> .env
+            echo "SSO_API_KEY=${{ secrets.SSO_API_KEY }}" >> .env
+            echo "SSO_ENDPOINT=${{ secrets.SSO_ENDPOINT }}" >> .env
+            echo "DISCORD_USERNAME=${{ secrets.DISCORD_USERNAME }}" >> .env
+            echo "DISCORD_PASSWORD=${{ secrets.DISCORD_PASSWORD }}" >> .env
+            echo "DISCORD_USER_DATA_DIR=${{ secrets.DISCORD_USER_DATA_DIR }}" >> .env
+            echo "APP_PUPPET_HEADLESS=${{ secrets.APP_PUPPET_HEADLESS }}" >> .env
+            echo "APP_PUPPET_ARGS=${{ secrets.APP_PUPPET_ARGS }}" >> .env
+            echo "RUNNERS=${{ secrets.RUNNERS }}" >> .env
+            pm2 stop midjourney-api
+            pm2 delete midjourney-api
+            pm2 start npm --name "midjourney-api" -- start
