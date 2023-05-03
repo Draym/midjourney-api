@@ -17,6 +17,7 @@
     "@babel/plugin-transform-runtime": "^7.15.8",
     "@d-lab/api-kit": "^0.5.6",
     "@d-lab/common-kit": "^0.7.6",
+    "@d-lab/discord-puppet": "^0.6.4",
     "@d-lab/sso": "^0.5.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",

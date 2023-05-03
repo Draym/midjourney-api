@@ -3,6 +3,8 @@ import config from "../config/db.config"
 
 import {init as initLogModel} from "../models/log.model"
 
+import {init as initArtRequestModel} from "../models/art-request.model"
+
 export const connectionParams = {
     username: config.username,
     password: config.password,
@@ -30,6 +32,7 @@ const sequelize = new Sequelize(connectionParams)
 export {sequelize}
 
 const db = {
+	ArtRequests: initArtRequestModel(sequelize),
     Logs: initLogModel(sequelize)
 }
 
