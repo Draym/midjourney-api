@@ -1,3 +1,0 @@
-Put third-party SDK declaration here.
-
-Files in this folder should provide tools or helpers to interact with others web services such as SSO, Kafka, Redis...
